@@ -1,16 +1,187 @@
-SELECT * FROM lahman2016.single;
+use lahman2016;
+SHOW VARIABLES LIKE 'secure_file_priv';
+SHOW VARIABLES LIKE 'tmpdir';
 
 # The analysis to score players by batter, starting or relieving pitcher will be evaluated from
 # the years 2000. If they have achieved a score that is great enough they will be evaluated for
 # the next years until 2017 or they retire.
 
 # ********************** TEMPORARY TABLE FOR ENOUGH YEARS IN THE LEAGUE - DOESNT WORK YET*****************************
-#drop table if exists enoughYears;
-#create temporary table enoughYears
-#select m.playerID, substring(m.finalGame,1,4) as endYear
-#from master m
-#where cast(substring(m.finalGame,1,4) as unsigned) = 2010;
 
+# THIS IS FOR ALL POSSIBLE PLAYERS WITH A CAREER LONGER THAN 5 YEARS FROM 2005 - 2017
+drop table if exists years_in_league;
+create table years_in_league as
+select m.playerID, substring(m.finalGame, 1, 4) as final, substring(m.debut,1,4) as deb
+from master m
+where substring(m.finalGame, 1, 4) != '' and substring(m.debut,1,4) != '';
+
+drop table if exists tot_years;
+create table tot_years as
+select years_in_league.playerID, convert(years_in_league.final,unsigned) - convert(years_in_league.deb, unsigned) as total_years
+from years_in_league
+where cast(years_in_league.deb as unsigned) >= 2005 and convert(years_in_league.final,unsigned) - convert(years_in_league.deb, unsigned) > 5 and cast(years_in_league.final as unsigned) <= 2017 ;
+
+select * from tot_years
+INTO OUTFILE 'C:\\data\\tot_years.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+
+# NOW NEED TO COMPUTE BEST BATTER FOR ALL THE PLAYERS IN TOTAL_YEARS_BATTING
+# FIRST BATTING QUERY
+drop table if exists BestBatters;
+create temporary table BestBatters
+select tb.playerID, (b.RBI*0.4 + b.2B*0.3 + b.3B*0.3 + b.HR*0.3 - b.CS*0.2 - b.GIDP*0.5) as battingScore
+from tot_batting tb
+join batting b on b.playerID = tb.playerID
+where (b.AB > 200 and b.yearID = 2005) or (b.yearID = '' and b.AB = '')
+order by tb.playerID;
+
+# THIS RESULTS IN A POSSIBLE 525 PLAYERS
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2005
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2005.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2006
+order by tot_years.playerID
+INTO OUTFILE 'C:\\Users\\zacka\\Documents\\GitHub\\Sabermetrics-Project\\data\\2006.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2007
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2007.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2008
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2008.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2009
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2009.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2010
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2010.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2011
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2011.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2012
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2012.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2013
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2013.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2014
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2014.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2015
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2015.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2016
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2016.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
+
+select tot_years.playerID, b.yearID, b.RBI, b.2B, b.3B, b.HR, b.CS, b.GIDP
+from tot_years
+join batting b on b.playerID = tot_years.playerID
+where b.AB >= 200 and b.yearID = 2017
+order by tot_years.playerID
+INTO OUTFILE 'C:\Users\zacka\Documents\GitHub\Sabermetrics-Project\data\2017.csv'
+FIELDS ENCLOSED BY '"'
+TERMINATED BY ';'
+ESCAPED BY '"'
+LINES TERMINATED BY '\r\n';
 # BATTERS STATISTICS:
 # RBIs - most important (overlooks lead off hitters but, if you don't hit a HR you don't change the game as a single hitter)
 # Doubles, Triples - put yourself in scoring position (More important than the actual run, because it is out of your hands)
@@ -35,18 +206,23 @@ SELECT * FROM lahman2016.single;
 # FIRST BATTING QUERY
 drop table if exists BestBatters;
 create temporary table BestBatters
-select b.playerID, (b.RBI*0.4 + b.2B*0.3 + b.3B*0.3 + b.HR*0.3 - b.CS*0.2 - b.GIDP*0.5) as battingScore
+select b.playerID, b.yearID, (b.RBI*0.4 + b.2B*0.3 + b.3B*0.3 + b.HR*0.3 - b.CS*0.2 - b.GIDP*0.5) as battingScore
 from batting b
-join master m on m.playerID = b.playerID
-where b.yearID = 2000 and b.AB > 450 #and cast(substring(m.finalGame,1,4) as signed) > 2015
-order by battingScore DESC; # WHY DOES THIS CHANGE MY RESULTS?
+join tot_years on tot_years.playerID = b.playerID
+where b.AB > 200 and b.yearID = 2005 and tot_years.playerID = b.playerID
+group by b.playerID
+order by b.playerID; # WHY DOES THIS CHANGE MY RESULTS?
+
+select *
+from BestBatters;
 
 # SECOND QUERY: BATTING SCORE FOR ALL YEARS TILL 2015
 select bb.playerID, b.yearID, (b.RBI*0.4 + b.2B*0.3 + b.3B*0.3 + b.HR*0.3 - b.CS*0.2 - b.GIDP*0.5) as YearlyBatScore
 from batting b
 join BestBatters bb on bb.playerID = b.playerID
+join years_in_league on years_in_league.playerID = b.playerID
 #join master m on m.playerID = bb.playerID
-where b.yearID > 1999
+where convert(years_in_league.deb, unsigned) > 2000
 order by b.yearID;
 
 # STARTING PITCHERS:
